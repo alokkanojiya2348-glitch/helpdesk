@@ -80,6 +80,19 @@ router.post("/summarize", requireAuth, async (req, res) => {
     return;
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    if (process.env.MOCK_AI === "true") {
+      res.json({
+        summary: `Customer ${ticket.senderName} inquired about "${ticket.subject}". The support team has responded and the ticket is currently being handled.`,
+      });
+      return;
+    }
+    res.status(400).json({
+      error: "OpenAI API key is missing. Please set OPENAI_API_KEY in server/.env to use AI Summarize.",
+    });
+    return;
+  }
+
   const replies = await prisma.reply.findMany({
     where: { ticketId },
     orderBy: { createdAt: "asc" },
@@ -94,19 +107,28 @@ router.post("/summarize", requireAuth, async (req, res) => {
     })
     .join("\n\n");
 
-  const { text } = await generateText({
-    model: openai("gpt-5-nano"),
-    system:
-      "You are a helpful assistant that summarizes support ticket conversations. " +
-      "Provide a clear, concise summary that captures the customer's issue, any actions taken, and the current status. " +
-      "Keep the summary to 2-4 sentences. Return only the summary with no preamble.",
-    prompt:
-      `Subject: ${ticket.subject}\n\n` +
-      `Customer message:\n${ticket.body}\n\n` +
-      (conversation ? `Conversation:\n${conversation}` : "No replies yet."),
-  });
+  const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
-  res.json({ summary: text });
+  try {
+    const { text } = await generateText({
+      model: openai(modelName),
+      system:
+        "You are a helpful assistant that summarizes support ticket conversations. " +
+        "Provide a clear, concise summary that captures the customer's issue, any actions taken, and the current status. " +
+        "Keep the summary to 2-4 sentences. Return only the summary with no preamble.",
+      prompt:
+        `Subject: ${ticket.subject}\n\n` +
+        `Customer message:\n${ticket.body}\n\n` +
+        (conversation ? `Conversation:\n${conversation}` : "No replies yet."),
+    });
+
+    res.json({ summary: text });
+  } catch (error: any) {
+    console.error("Failed to generate summary:", error);
+    res.status(500).json({
+      error: error?.message || "Failed to generate summary with AI",
+    });
+  }
 });
 
 router.post("/polish", requireAuth, async (req, res) => {
@@ -128,19 +150,40 @@ router.post("/polish", requireAuth, async (req, res) => {
   const agentName = req.user.name;
   const customerName = ticket.senderName.split(" ")[0];
 
-  const { text } = await generateText({
-    model: openai("gpt-5-nano"),
-    system:
-      "You are a helpful writing assistant for a customer support team. " +
-      "Improve the given reply for clarity, professional tone, and grammar. " +
-      "Preserve the original meaning and keep the response concise. " +
-      "Return only the improved text with no preamble or explanation. " +
-      `Address the customer by their name: ${customerName}. ` +
-      `End the reply with a sign-off using the agent's name: ${agentName}, and include the link https://codewithmosh.com on its own line after the sign-off.`,
-    prompt: data.body,
-  });
+  if (!process.env.OPENAI_API_KEY) {
+    if (process.env.MOCK_AI === "true") {
+      const polishedFallback = `Hi ${customerName},\n\nThank you for reaching out. ${data.body.trim()}\n\nBest regards,\n${agentName}`;
+      res.json({ body: polishedFallback });
+      return;
+    }
+    res.status(400).json({
+      error: "OpenAI API key is missing. Please set OPENAI_API_KEY in server/.env to use Polish.",
+    });
+    return;
+  }
 
-  res.json({ body: text });
+  const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+
+  try {
+    const { text } = await generateText({
+      model: openai(modelName),
+      system:
+        "You are a helpful writing assistant for a customer support team. " +
+        "Improve the given reply for clarity, professional tone, and grammar. " +
+        "Preserve the original meaning and keep the response concise. " +
+        "Return only the improved text with no preamble or explanation. " +
+        `Address the customer by their name: ${customerName}. ` +
+        `End the reply with a sign-off using the agent's name: ${agentName}.`,
+      prompt: data.body,
+    });
+
+    res.json({ body: text });
+  } catch (error: any) {
+    console.error("Failed to polish reply:", error);
+    res.status(500).json({
+      error: error?.message || "Failed to polish reply with AI",
+    });
+  }
 });
 
 export default router;
