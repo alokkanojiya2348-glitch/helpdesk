@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import sgMail from "@sendgrid/mail";
 import type { PgBoss } from "pg-boss";
 import Sentry from "./sentry";
@@ -18,21 +19,49 @@ export async function registerSendEmailWorker(boss: PgBoss): Promise<void> {
     retryBackoff: true,
   });
 
+  const gmailTransporter =
+    process.env.SMTP_USER && process.env.SMTP_PASS
+      ? nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        })
+      : null;
+
   await boss.work<SendEmailJobData>(QUEUE_NAME, async (jobs) => {
     const { to, subject, body, bodyHtml } = jobs[0]!.data;
 
     try {
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+      if (gmailTransporter) {
+        await gmailTransporter.sendMail({
+          from:
+            process.env.SMTP_FROM ||
+            `"Helpdesk Support" <${process.env.SMTP_USER}>`,
+          to,
+          subject,
+          text: body,
+          ...(bodyHtml && { html: bodyHtml }),
+        });
+        console.log(`[Gmail] Email sent to ${to} — subject: "${subject}"`);
+        return;
+      }
 
-      await sgMail.send({
-        to,
-        from: process.env.SENDGRID_FROM_EMAIL!,
-        subject,
-        text: body,
-        ...(bodyHtml && { html: bodyHtml }),
-      });
+      if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_FROM_EMAIL) {
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+        await sgMail.send({
+          to,
+          from: process.env.SENDGRID_FROM_EMAIL,
+          subject,
+          text: body,
+          ...(bodyHtml && { html: bodyHtml }),
+        });
+        console.log(`[SendGrid] Email sent to ${to} — subject: "${subject}"`);
+        return;
+      }
 
-      console.log(`Email sent to ${to} — subject: "${subject}"`);
+      console.log(`[Dev] Mock email to ${to}: "${subject}"`);
     } catch (error) {
       Sentry.captureException(error, {
         tags: { queue: QUEUE_NAME },
