@@ -7,6 +7,7 @@ import { openai } from "@ai-sdk/openai";
 import { createReplySchema, polishReplySchema } from "core/schemas/replies.ts";
 import prisma from "../db";
 import { sendEmailJob } from "../lib/send-email";
+import Sentry from "../lib/sentry";
 
 const router = Router({ mergeParams: true });
 
@@ -124,6 +125,7 @@ router.post("/summarize", requireAuth, async (req, res) => {
 
     res.json({ summary: text });
   } catch (error: any) {
+    Sentry.captureException(error, { tags: { route: "replies", action: "summarize", ticketId } });
     console.error("Failed to generate summary:", error);
     res.status(500).json({
       error: error?.message || "Failed to generate summary with AI",
@@ -179,6 +181,7 @@ router.post("/polish", requireAuth, async (req, res) => {
 
     res.json({ body: text });
   } catch (error: any) {
+    Sentry.captureException(error, { tags: { route: "replies", action: "polish", ticketId } });
     console.error("Failed to polish reply:", error);
     res.status(500).json({
       error: error?.message || "Failed to polish reply with AI",

@@ -14,6 +14,7 @@ import agentsRouter from "./routes/agents";
 import webhooksRouter from "./routes/webhooks";
 import repliesRouter from "./routes/replies";
 import { startQueue, stopQueue } from "./lib/queue";
+import { startGmailSync, stopGmailSync } from "./lib/gmail-sync";
 
 
 if (!process.env.BETTER_AUTH_SECRET) {
@@ -83,8 +84,15 @@ if (!process.env.WEBHOOK_SECRET) {
   console.warn("Warning: WEBHOOK_SECRET is not set. Webhook endpoints will return 500.");
 }
 
+if (process.env.SENTRY_DSN) {
+  console.log(`[Sentry] Backend error logging enabled (${process.env.SENTRY_ENVIRONMENT || "development"})`);
+} else {
+  console.warn("[Sentry] SENTRY_DSN is not set in server/.env. Backend error logging to Sentry is disabled.");
+}
+
 async function boot() {
   await startQueue();
+  await startGmailSync();
 
   const server = app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
@@ -93,6 +101,7 @@ async function boot() {
   const shutdown = async () => {
     console.log("Shutting down...");
     server.close();
+    await stopGmailSync();
     await stopQueue();
     process.exit(0);
   };
