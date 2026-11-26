@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type { PgBoss } from "pg-boss";
-import { generateText } from "ai";
-import { getAIModel } from "./ai";
+import { generateAIText, isAIConfigured } from "./ai";
 import Sentry from "./sentry";
 import prisma from "../db";
 import { sendEmailJob } from "./send-email";
@@ -33,8 +32,7 @@ export async function registerAutoResolveWorker(boss: PgBoss): Promise<void> {
     const { ticketId, subject, body, senderName, senderEmail } = jobs[0]!.data;
     const firstName = senderName.split(" ")[0];
 
-    const model = getAIModel();
-    if (!model) {
+    if (!isAIConfigured()) {
       await prisma.ticket.update({
         where: { id: ticketId },
         data: { status: "open", assignedToId: null },
@@ -49,8 +47,7 @@ export async function registerAutoResolveWorker(boss: PgBoss): Promise<void> {
 
     let response: string;
     try {
-      const { text } = await generateText({
-        model,
+      const text = await generateAIText({
         system:
           "You are a friendly and professional AI support engineer for the Helpdesk support team. " +
           "First check the official knowledge base below for Helpdesk policies, account/login help, and workflows.\n\n" +

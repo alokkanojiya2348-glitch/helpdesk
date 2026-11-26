@@ -1,6 +1,5 @@
 import type { PgBoss } from "pg-boss";
-import { generateText } from "ai";
-import { getAIModel } from "./ai";
+import { generateAIText, isAIConfigured } from "./ai";
 import {
   ticketCategories,
   type TicketCategory,
@@ -26,14 +25,12 @@ export async function registerClassifyWorker(boss: PgBoss): Promise<void> {
   await boss.work<ClassifyJobData>(QUEUE_NAME, async (jobs) => {
     const { ticketId, subject, body } = jobs[0]!.data;
 
-    const model = getAIModel();
-    if (!model) {
+    if (!isAIConfigured()) {
       return;
     }
 
     try {
-      const { text } = await generateText({
-        model,
+      const text = await generateAIText({
         system:
           "You are a support ticket classifier. " +
           "Classify the ticket into exactly one of these categories: " +

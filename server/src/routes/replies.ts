@@ -2,8 +2,7 @@ import { Router } from "express";
 import { requireAuth } from "../middleware/require-auth";
 import { validate } from "../lib/validate";
 import { parseId } from "../lib/parse-id";
-import { generateText } from "ai";
-import { getAIModel } from "../lib/ai";
+import { generateAIText, isAIConfigured } from "../lib/ai";
 import { createReplySchema, polishReplySchema } from "core/schemas/replies.ts";
 import prisma from "../db";
 import { sendEmailJob } from "../lib/send-email";
@@ -81,8 +80,7 @@ router.post("/summarize", requireAuth, async (req, res) => {
     return;
   }
 
-  const model = getAIModel();
-  if (!model) {
+  if (!isAIConfigured()) {
     if (process.env.MOCK_AI === "true") {
       res.json({
         summary: `Customer ${ticket.senderName} inquired about "${ticket.subject}". The support team has responded and the ticket is currently being handled.`,
@@ -110,8 +108,7 @@ router.post("/summarize", requireAuth, async (req, res) => {
     .join("\n\n");
 
   try {
-    const { text } = await generateText({
-      model,
+    const text = await generateAIText({
       system:
         "You are a helpful assistant that summarizes support ticket conversations. " +
         "Provide a clear, concise summary that captures the customer's issue, any actions taken, and the current status. " +
@@ -151,8 +148,7 @@ router.post("/polish", requireAuth, async (req, res) => {
   const agentName = req.user.name;
   const customerName = ticket.senderName.split(" ")[0];
 
-  const model = getAIModel();
-  if (!model) {
+  if (!isAIConfigured()) {
     if (process.env.MOCK_AI === "true") {
       const polishedFallback = `Hi ${customerName},\n\nThank you for reaching out. ${data.body.trim()}\n\nBest regards,\n${agentName}`;
       res.json({ body: polishedFallback });
@@ -165,8 +161,7 @@ router.post("/polish", requireAuth, async (req, res) => {
   }
 
   try {
-    const { text } = await generateText({
-      model,
+    const text = await generateAIText({
       system:
         "You are a helpful writing assistant for a customer support team. " +
         "Improve the given reply for clarity, professional tone, and grammar. " +
