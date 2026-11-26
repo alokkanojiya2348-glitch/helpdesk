@@ -47,6 +47,24 @@ export async function processInboundEmail(data: InboundEmailPayload) {
       },
     });
     console.log(`[Inbound] Added customer reply to Ticket #${existingTicket.id} ("${normalizedSubject}") from ${data.from}`);
+
+    // Re-open ticket and trigger AI auto-reply for customer follow-up
+    await prisma.ticket.update({
+      where: { id: existingTicket.id },
+      data: { status: "open" },
+    });
+
+    sendAutoResolveJob({
+      id: existingTicket.id,
+      subject: existingTicket.subject,
+      body: data.body || "(No message body)",
+      senderName: existingTicket.senderName,
+      senderEmail: existingTicket.senderEmail,
+    }).catch((error) => {
+      Sentry.captureException(error, { tags: { step: "enqueue-auto-resolve-reply", ticketId: existingTicket.id } });
+      console.error(`Failed to enqueue auto-resolve job for reply on ticket ${existingTicket.id}:`, error);
+    });
+
     return { action: "reply" as const, ticket: existingTicket, reply };
   }
 

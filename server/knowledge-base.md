@@ -1,150 +1,161 @@
-# Code with Mosh -- Support Knowledge Base
+# Helpdesk Support — Knowledge Base
 
 *Last Updated: 2026*
 
-This document contains official support policies and troubleshooting
-guides for Code with Mosh courses.
+This document contains official support policies and troubleshooting guides for the Helpdesk system.
 
-------------------------------------------------------------------------
+---
 
 ## 1. Account & Login Issues
 
 ### Q: I forgot my password. What should I do?
 
-1.  Go to the login page.
-2.  Click **Forgot Password**.
-3.  Enter your registered email address.
-4.  Follow the instructions in the reset email.
+1. Go to the login page.
+2. Click **Forgot Password**.
+3. Enter your registered email address.
+4. Follow the instructions in the reset email.
 
-If you do not receive the email, check your spam or promotions folder.
+If you do not receive the email, check your spam or promotions folder. If the issue persists, contact our support team.
 
-------------------------------------------------------------------------
+---
 
-### Q: I'm not receiving the password reset email.
+### Q: I cannot log in to my account.
 
-Possible reasons: - The email was entered incorrectly. - The account was
-created using a different email. - The email is in your spam folder.
+Possible reasons:
+- Incorrect email or password.
+- Account may have been deactivated.
+- Browser cookies/cache issue.
 
-If the email does not arrive within 10 minutes, contact support.
+Steps to fix:
+1. Clear your browser cache and try again.
+2. Use the **Forgot Password** option to reset your password.
+3. Try a different browser or incognito mode.
+4. If still unable to login, contact support.
 
-------------------------------------------------------------------------
+---
 
-## 2. Course Access & Purchases
+### Q: How do I change my password?
 
-### Q: I purchased a course but cannot see it.
+1. Log in to your account.
+2. Go to **Profile Settings**.
+3. Click **Change Password**.
+4. Enter your current and new password.
+5. Save changes.
 
-Possible reasons: - You are logged in with a different email address. -
-The payment is still processing. - The purchase was not completed
-successfully.
+---
 
-Check your receipt email for confirmation.
+### Q: My account has been locked. What should I do?
 
-------------------------------------------------------------------------
+Accounts are temporarily locked after multiple failed login attempts for security. Wait 15 minutes and try again, or contact support to unlock your account manually.
 
-### Q: Can I transfer a purchased course to another account?
+---
 
-Courses are non-transferable and tied to the purchasing account.
+## 2. Technical Issues
 
-------------------------------------------------------------------------
+### Q: The application is not loading or showing a blank screen.
 
-## 3. Lifetime Access
+Try the following steps:
+1. Refresh the page (Ctrl+F5 or Cmd+Shift+R).
+2. Clear your browser cache and cookies.
+3. Try a different browser (Chrome or Edge recommended).
+4. Disable browser extensions.
+5. Check your internet connection.
+6. If the issue persists, contact support with your browser name and OS version.
 
-### Q: What does Lifetime Access mean?
+---
 
-Lifetime Access means: - You pay once. - You keep access permanently. -
-You receive future updates for that course.
+### Q: I am getting an error message on the screen.
 
-Lifetime Access applies only to the purchased course.
+Please note the exact error message and:
+1. Take a screenshot of the error.
+2. Note what action you were performing when the error occurred.
+3. Share this information when you contact support.
 
-------------------------------------------------------------------------
+This helps our team resolve the issue faster.
 
-## 4. Refund Policy
+---
 
-### Q: What is the refund policy?
+### Q: The page is loading very slowly.
 
--   30-day money-back guarantee.
--   Full refund if requested within 30 days of purchase.
--   Partial refund available if less than 80% of the course has been
-    completed.
--   No refund if 80% or more of the course has been completed.
+Possible reasons:
+- Slow internet connection.
+- Server maintenance in progress.
+- Too many open browser tabs.
 
-Refunds are processed within 5--10 business days.
+Recommended steps:
+- Check your internet speed.
+- Close unnecessary browser tabs.
+- Try again after a few minutes.
 
-------------------------------------------------------------------------
+---
 
-### Q: How do I request a refund?
+### Q: A feature is not working as expected.
 
-To request a refund: 1. Contact support within 30 days of purchase. 2.
-Provide your order receipt. 3. Include the reason for your request.
+Please describe the issue in detail:
+- Which page or feature is affected?
+- What were you trying to do?
+- What happened instead?
 
-------------------------------------------------------------------------
+Our team will investigate and get back to you.
 
-## 5. Certificates
+---
 
-### Q: Do you provide certificates?
+## 3. Tickets & Requests
 
-Yes. A certificate is issued upon course completion.
+### Q: How do I submit a support ticket?
 
-Certificates are available inside your dashboard.
+You can submit a ticket in two ways:
+1. **Email:** Send an email to our support address. A ticket will be created automatically.
+2. **Web:** Log in to the helpdesk portal and click **New Ticket**.
 
-Certificates are not accredited degrees.
+---
 
-------------------------------------------------------------------------
+### Q: How long does it take to resolve a ticket?
 
-## 6. Downloading Content
+- **Simple issues:** Usually resolved within a few minutes by our AI system.
+- **Complex issues:** Assigned to a human agent and resolved within 24 hours on business days.
+- **Critical issues:** Escalated immediately and resolved as soon as possible.
 
-### Q: Can I download videos?
+---
 
--   Videos are streamed online.
--   Source code is downloadable.
--   Offline video downloads are not supported.
+### Q: How do I check the status of my ticket?
 
-------------------------------------------------------------------------
+You will receive an email notification for every update on your ticket. You can also reply to any ticket email to add more information.
 
-## 7. Technical Issues
+---
 
-### Q: Videos are not playing.
+### Q: Can I reply to a ticket via email?
 
-Try the following: - Clear your browser cache. - Use the latest version
-of Chrome or Edge. - Disable browser extensions. - Check your internet
-connection.
+Yes! Simply reply to any email notification you received about your ticket. Your reply will be added to the ticket automatically.
 
-------------------------------------------------------------------------
+---
 
-### Q: The video quality is low.
+## 4. Data & Privacy
 
-Video quality adjusts automatically based on internet speed. Ensure you
-have a stable internet connection.
+### Q: Is my data secure?
 
-------------------------------------------------------------------------
+Yes. We take data security seriously:
+- All data is encrypted in transit (HTTPS).
+- Passwords are securely hashed — never stored in plain text.
+- Access is role-based — agents can only see relevant tickets.
 
-## 8. Coupon Codes
+---
 
-### Q: My coupon code doesn't work.
+### Q: How do I request deletion of my data?
 
-Possible reasons: - The coupon has expired. - The coupon was already
-used. - The coupon is not valid for the selected course.
+Contact our support team with your request. We will process data deletion requests within 30 days in accordance with privacy policies.
 
-Only one coupon may be applied per purchase.
+---
 
-------------------------------------------------------------------------
+## 5. Escalation Rules (Internal Policy)
 
-## 9. Account Changes
+The AI system must escalate to a human agent if:
+- The user is reporting a critical or urgent security issue.
+- The user is requesting data deletion or account removal.
+- The issue involves billing or payments.
+- The user is frustrated or the issue is complex and not covered in this knowledge base.
+- The system cannot confidently resolve the issue from the knowledge base.
 
-### Q: How do I change my email address?
-
-Contact support and provide: - Your current email - Your new email -
-Proof of purchase (if requested)
-
-------------------------------------------------------------------------
-
-## 10. Escalation Rules (Internal Policy)
-
-The system must escalate to a human agent if: - The user threatens legal
-action. - The user requests a refund outside the 30-day window. - The
-user disputes a charge or mentions a chargeback. - The issue involves
-account security concerns. - The system confidence score is low.
-
-------------------------------------------------------------------------
+---
 
 End of Knowledge Base
