@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import type { PgBoss } from "pg-boss";
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { getAIModel } from "./ai";
 import Sentry from "./sentry";
 import prisma from "../db";
 import { sendEmailJob } from "./send-email";
@@ -33,7 +33,8 @@ export async function registerAutoResolveWorker(boss: PgBoss): Promise<void> {
     const { ticketId, subject, body, senderName, senderEmail } = jobs[0]!.data;
     const firstName = senderName.split(" ")[0];
 
-    if (!process.env.OPENAI_API_KEY) {
+    const model = getAIModel();
+    if (!model) {
       await prisma.ticket.update({
         where: { id: ticketId },
         data: { status: "open", assignedToId: null },
@@ -49,21 +50,22 @@ export async function registerAutoResolveWorker(boss: PgBoss): Promise<void> {
     let response: string;
     try {
       const { text } = await generateText({
-        model: openai("gpt-5-nano"),
+        model,
         system:
-          "You are a friendly and professional support agent for the Helpdesk support team. " +
-          "Use ONLY the following knowledge base to answer the customer's question.\n\n" +
+          "You are a friendly and professional AI support engineer for the Helpdesk support team. " +
+          "First check the official knowledge base below for Helpdesk policies, account/login help, and workflows.\n\n" +
           knowledgeBase +
           "\n\n" +
           "Guidelines for your response:\n" +
           `- Address the customer by their first name: ${firstName}\n` +
           "- Use a warm, professional, and customer-friendly tone\n" +
+          "- If the customer reports a technical error, bug, or asks how to fix an issue, provide clear, practical, step-by-step troubleshooting instructions to help solve it\n" +
           "- Format the response clearly with line breaks between paragraphs\n" +
           "- Use bullet points or numbered lists when listing steps or multiple items\n" +
           "- End with an offer to help further, e.g. 'If you have any other questions, feel free to reach out.'\n" +
           "- Sign off with:\n\nBest regards,\nHelpdesk Support Team\n\n" +
-          "If the knowledge base does NOT contain enough information to fully resolve the question, " +
-          'respond with exactly "ESCALATE" and nothing else.',
+          "ONLY respond with exactly \"ESCALATE\" (and nothing else) if the Escalation Rules apply " +
+          "(e.g., billing/payment disputes, chargebacks, legal threats, urgent security incidents, or account/data deletion requests that require human approval).",
         prompt: `Subject: ${subject}\n\nBody: ${body}`,
       });
       response = text.trim();
